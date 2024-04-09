@@ -26,10 +26,10 @@ const userSignUp = async (request, response) => {
             request.body.password = await bcrypt.hash(request.body.password, 10);
 
             const user = request.body;
-            const email = user.email
+            //const email = user.email
 
-            otp = await sendOTP({ email: email })
-            user.otp = otp
+            //otp = await sendOTP({ email: email })
+            // user.otp = otp
             const newUser = new User(user);
             await newUser.save();
             console.log(newUser)
@@ -45,4 +45,27 @@ const userSignUp = async (request, response) => {
         response.status(500).json({ message: error });
     }
 }
+const userLogIn = async () => {
+    try {
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Compare passwords
+        const match = await bcrypt.compare(password, user.password);
+
+        if (!match) {
+            return res.status(401).json({ message: 'Incorrect password' });
+        }
+
+        // Successful login
+        res.status(200).json({ message: 'Login successful' });
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({ message: error });
+    }
+}
 module.exports.userSignUp = userSignUp
+module.exports.userLogIn = userLogIn
